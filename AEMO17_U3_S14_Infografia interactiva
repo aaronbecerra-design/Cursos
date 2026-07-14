@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Comparativa de metodologías de innovación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --c-bg-0:#33385c; --c-bg-1:#3d4370; --c-bg-2:#515894;
+    --c-primary:#858cbc; --c-primary-l:#adb2d2; --c-primary-d:#515894;
+    --c-white:#ffffff; --c-muted:rgba(255,255,255,0.70);
+    --c-glass:rgba(173,178,210,0.10); --c-glass-strong:rgba(173,178,210,0.18);
+    --c-line:rgba(173,178,210,0.24);
+    --c-success:#22c55e; --c-danger:#ef4444; --c-gold:#858cbc;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;font-family:'Open Sans',sans-serif;color:var(--c-white);}
+  body{
+    width:100vw;height:100vh;overflow:hidden;position:relative;
+    background:linear-gradient(150deg,var(--c-bg-0),var(--c-bg-1) 55%,var(--c-bg-2));
+  }
+
+  /* ---------- fondo animado: auroras + partículas ---------- */
+  .fondo{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+  .aurora{position:absolute;border-radius:50%;filter:blur(70px);opacity:0.35;}
+  .aurora.a1{width:520px;height:520px;background:#858cbc;top:-140px;left:-100px;animation:flotar1 16s ease-in-out infinite;}
+  .aurora.a2{width:460px;height:460px;background:#515894;bottom:-160px;right:-80px;animation:flotar2 20s ease-in-out infinite;}
+  .aurora.a3{width:380px;height:380px;background:#adb2d2;top:38%;left:52%;animation:flotar3 18s ease-in-out infinite;}
+  @keyframes flotar1{0%,100%{transform:translate(0,0);}50%{transform:translate(60px,50px);}}
+  @keyframes flotar2{0%,100%{transform:translate(0,0);}50%{transform:translate(-50px,-40px);}}
+  @keyframes flotar3{0%,100%{transform:translate(-30px,20px) scale(1);}50%{transform:translate(20px,-30px) scale(1.12);}}
+
+  .fondo::before{
+    content:"";position:absolute;inset:0;
+    background-image:radial-gradient(var(--c-glass-strong) 1px, transparent 1px);
+    background-size:26px 26px;opacity:0.35;
+  }
+
+  .particula{position:absolute;bottom:-10px;border-radius:50%;background:var(--c-primary-l);opacity:0;animation:ascender linear infinite;}
+  @keyframes ascender{
+    0%{transform:translateY(0);opacity:0;}
+    10%{opacity:.7;}
+    90%{opacity:.4;}
+    100%{transform:translateY(-720px);opacity:0;}
+  }
+
+  .logo{position:absolute;top:24px;right:28px;z-index:5;}
+  .logo img{height:34px;display:block;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.25));}
+
+  .escena{
+    position:relative;z-index:2;height:100%;width:100%;
+    display:grid;grid-template-columns:minmax(300px,440px) 1fr;
+    gap:56px;align-items:center;padding:64px 64px 40px;
+  }
+
+  /* columna izquierda */
+  .titulo-principal{
+    font-size:clamp(26px,2.7vw,38px);font-weight:800;line-height:1.2;margin:0 0 18px;
+    background:linear-gradient(90deg,var(--c-white),var(--c-primary-l));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .intro-texto{font-size:14.5px;line-height:1.7;color:var(--c-muted);margin:0 0 28px;}
+
+  .badge-progreso{
+    display:inline-flex;align-items:center;gap:12px;background:var(--c-glass);border:1px solid var(--c-line);
+    border-radius:999px;padding:10px 18px;backdrop-filter:blur(6px);
+  }
+  .badge-progreso .puntos{display:flex;gap:6px;}
+  .badge-progreso .punto{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.25);transition:background .3s ease;}
+  .badge-progreso .punto.hecho{background:var(--c-success);}
+  .badge-progreso .texto{font-size:12.5px;font-weight:600;color:var(--c-primary-l);}
+  .badge-progreso.completo{border-color:var(--c-success);}
+  .badge-progreso.completo .texto{color:var(--c-success);}
+
+  /* columna derecha */
+  .col-derecha{display:flex;flex-direction:column;align-items:center;height:100%;justify-content:center;}
+  .grid-tarjetas{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;max-width:640px;}
+  .tarjeta-nodo.ancha{grid-column:1 / -1;}
+
+  .tarjeta-nodo{
+    position:relative;text-align:left;background:var(--c-glass);border:1px solid var(--c-line);border-left:3px solid transparent;
+    border-radius:16px;padding:18px 20px 16px;cursor:pointer;backdrop-filter:blur(10px);
+    color:var(--c-white);font-family:inherit;
+    opacity:0;transform:translateY(14px);animation:entrar .55s ease forwards;
+    transition:transform .25s ease, background .25s ease, border-color .25s ease;
+  }
+  .tarjeta-nodo:nth-child(1){animation-delay:.1s;}
+  .tarjeta-nodo:nth-child(2){animation-delay:.22s;}
+  .tarjeta-nodo:nth-child(3){animation-delay:.34s;}
+  .tarjeta-nodo:nth-child(4){animation-delay:.46s;}
+  .tarjeta-nodo:nth-child(5){animation-delay:.58s;}
+  @keyframes entrar{to{opacity:1;transform:translateY(0);}}
+  .tarjeta-nodo:hover{transform:translateY(-4px);background:var(--c-glass-strong);border-left-color:var(--c-gold);}
+  .tarjeta-nodo.visitada{border-left-color:var(--c-success);}
+
+  .icono-nodo{
+    width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,0.08);border:1px solid var(--c-line);
+    display:flex;align-items:center;justify-content:center;margin-bottom:12px;flex:0 0 42px;
+  }
+  .icono-nodo svg{width:21px;height:21px;stroke:var(--c-primary-l);}
+  .cabecera-ancha{display:flex;align-items:center;gap:14px;}
+  .cabecera-ancha .icono-nodo{margin-bottom:0;}
+  .titulo-nodo{font-size:14.5px;font-weight:700;margin:0 0 8px;}
+  .cta-nodo{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--c-primary-l);}
+  .cta-nodo .flecha{transition:transform .25s ease;}
+  .tarjeta-nodo:hover .cta-nodo .flecha{transform:translateX(4px);}
+  .check-visitado{
+    position:absolute;top:14px;right:14px;width:20px;height:20px;border-radius:50%;
+    background:var(--c-success);display:none;align-items:center;justify-content:center;font-size:11px;
+  }
+  .tarjeta-nodo.visitada .check-visitado{display:flex;}
+
+  /* modales */
+  .overlay{
+    position:fixed;inset:0;background:rgba(10,12,26,0.65);backdrop-filter:blur(6px);
+    display:flex;align-items:center;justify-content:center;z-index:50;
+    opacity:0;pointer-events:none;transition:opacity .25s ease;
+  }
+  .overlay.abierto{opacity:1;pointer-events:auto;}
+  .modal{
+    width:min(500px,90vw);max-height:84vh;overflow:auto;background:linear-gradient(160deg,var(--c-bg-1),var(--c-bg-0));
+    border:1px solid var(--c-line);border-radius:20px;padding:30px 30px 26px;position:relative;
+    transform:translateY(14px) scale(.97);opacity:0;transition:all .3s ease;
+  }
+  .overlay.abierto .modal{transform:translateY(0) scale(1);opacity:1;}
+  .cerrar-modal{
+    position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;
+    background:var(--c-glass-strong);border:1px solid var(--c-line);color:var(--c-white);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;
+    transition:transform .3s ease;
+  }
+  .cerrar-modal:hover{transform:rotate(90deg);}
+  .modal .icono-nodo{margin-bottom:16px;}
+  .modal h3{font-size:19px;margin:0 0 12px;}
+  .modal p{font-size:14px;line-height:1.7;color:var(--c-muted);margin:0;}
+
+  .comparativa{display:flex;gap:12px;margin-top:6px;}
+  .comparativa .col{flex:1;background:var(--c-glass);border:1px solid var(--c-line);border-radius:12px;padding:14px 12px;text-align:center;}
+  .comparativa .col .icono-nodo{margin:0 auto 8px;}
+  .comparativa .col h4{font-size:12.5px;margin:0 0 8px;}
+  .comparativa .col .fila{text-align:left;margin-bottom:8px;}
+  .comparativa .col .rotulo{font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--c-primary-l);margin-bottom:2px;}
+  .comparativa .col .valor{font-size:11px;line-height:1.5;color:var(--c-muted);}
+
+  .conector{width:2px;height:22px;background:linear-gradient(var(--c-line),var(--c-gold));margin:2px auto;}
+
+  .barra-cierre{
+    width:100%;max-width:640px;display:flex;align-items:center;gap:16px;
+    background:var(--c-glass);border:1.5px dashed var(--c-line);border-radius:16px;padding:16px 22px;
+    cursor:not-allowed;transition:all .3s ease;
+  }
+  .barra-cierre .icono-cierre{
+    width:42px;height:42px;flex:0 0 42px;border-radius:50%;background:rgba(255,255,255,0.08);
+    display:flex;align-items:center;justify-content:center;font-size:17px;
+  }
+  .barra-cierre .texto-cierre{flex:1;}
+  .barra-cierre .titulo-cierre{font-size:14px;font-weight:700;margin-bottom:2px;}
+  .barra-cierre .ayuda-cierre{font-size:11.5px;color:var(--c-muted);}
+  .barra-cierre.desbloqueada{
+    cursor:pointer;border-style:solid;border-color:var(--c-gold);
+    animation:glow-pulso 1.8s ease-in-out infinite;
+  }
+  @keyframes glow-pulso{0%,100%{box-shadow:0 0 0 0 rgba(133,140,188,0.35);}50%{box-shadow:0 0 0 10px rgba(133,140,188,0);}}
+  .barra-cierre.vista{border-color:var(--c-success);animation:none;box-shadow:0 0 22px rgba(34,197,94,0.2);}
+  .barra-cierre.vista .icono-cierre{background:rgba(34,197,94,0.18);}
+
+  /* responsive */
+  @media(max-width:980px){
+    html,body{height:auto;overflow-y:auto;}
+    .escena{grid-template-columns:1fr;padding:90px 24px 50px;gap:34px;height:auto;}
+    .grid-tarjetas{grid-template-columns:1fr;max-width:100%;}
+    .comparativa{flex-direction:column;}
+  }
+  @media(max-width:480px){
+    .escena{padding:80px 16px 40px;}
+    .tarjeta-nodo{padding:16px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="fondo">
+  <div class="aurora a1"></div>
+  <div class="aurora a2"></div>
+  <div class="aurora a3"></div>
+  <div class="particula" style="left:8%;width:4px;height:4px;animation-duration:14s;animation-delay:0s;"></div>
+  <div class="particula" style="left:18%;width:3px;height:3px;animation-duration:19s;animation-delay:2s;"></div>
+  <div class="particula" style="left:29%;width:5px;height:5px;animation-duration:16s;animation-delay:5s;"></div>
+  <div class="particula" style="left:41%;width:3px;height:3px;animation-duration:21s;animation-delay:1s;"></div>
+  <div class="particula" style="left:53%;width:4px;height:4px;animation-duration:17s;animation-delay:7s;"></div>
+  <div class="particula" style="left:64%;width:3px;height:3px;animation-duration:20s;animation-delay:3s;"></div>
+  <div class="particula" style="left:74%;width:5px;height:5px;animation-duration:15s;animation-delay:6s;"></div>
+  <div class="particula" style="left:85%;width:3px;height:3px;animation-duration:18s;animation-delay:4s;"></div>
+  <div class="particula" style="left:94%;width:4px;height:4px;animation-duration:22s;animation-delay:8s;"></div>
+</div>
+
+<div class="logo">
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAa8AAACrCAYAAADRjROjAAAACXBIWXMAAAsSAAALEgHS3X78AAAJq0lEQVR4nO3d/W0bRxoH4PXB/5NXgZgKpFQgugIrFViu4JQKLFdgpQIrFUSuwHIFkTqQKwhZgQ68DIGFznbEmV1y3tnnAQgjsSXu92++98Xj42MHAJH8y9kCIBrhBUA4wguAcIQXAOEILwDCEV4AhCO8AAhHeAEQjvACIBzhBUA4wguAcIQXAOEILwDCEV4AhCO8AAhHeAEQjvACIBzhBUA4wguAcIQXAOEILwDCEV4AhCO8AAhHeAEQjvACIBzhBUA4wguAcIQXAOEILwDCEV4AhCO8AAhHeAEQjvACIBzhBUA4wguAcF5WuMHzrutOKtiOKFZd191N/SAA01JjeG2C63MF2xHFl67rllM/CMC0aDYEIBzhBUA4wguAcIQXAOEILwDCEV4AhCO8AAhHeAEQjvACIBzhBUA4wguAcIQXAOEILwDCEV4AhCO8AAhHeAEQjvACIBzhBUA4wguAcIQXAOEILwDCEV4AhCO8AAhHeAEQjvACIBzhBUA4L52yUb3vuu5yhy9Ydl33eQ/b9biH7+hbd11313XdKv152/vvMex7/7bue/u43c+HA23L9yzTZ9H7HI3wPc+59jd//26E736OL984V61cj9v77eHJ/dYU4cU+zLquO03f87r3wNo8QK67rrsZ8cGxT8fpu05733mf9vH6QPs477ruvOu6syfbNXX963HrU7oWr4Mfm+39tvm8Sf9v3du32wNv3yA0G3JIm5vrYyohXqYHbWs2gfbhAPu4TA+qv9L3C65/9rp3PZ7XvrE7mqUg+5z27yzU1n+D8KIGs1Qbu0sP3Rb19/FkxP1bpND63Ct1s5ujFGK3jRaoNvv3R9q/RQXbk0V4UZOj9NBtrdTbt9nHP0fax/MUjkJrGKepljJmYeOQTtP1EvJ+E17U6GPDNbCtjwM/NK7S75wN+Dv5+3iGrqH8g1m6bi6q3spvEF7U6qbRJpu+q4FK9Ztmwv8Mt1k8MUvXY8s+RAsw4UWtZhFLgzuapQArcaWZcC+Od5z2EtGHSE2IwouaXUyg9nVa8MA4U+Paqylcj0O1BoxOeFGzWQtDep8hp4Y5b2A+UjRTaQ0IcV2ZpEztzjJupld72KdlCpBlb3JyruNU2t1lFYSLEQdn3A8wofo5K4vsY8LsPB3bRTpXpauJnO+p+fDLM//dfIDr76njtJ9Vh5jw4rleZBypk/RZFvTL5Iw63McKAv3vWKSbvSRQznYIr/mANYBPveWDxlyy61se9rR8Vn+wxUk6drnX41FGQSPHrtf9vHevLQeYlH5Ze3hpNmRMd+kG2DzYf05L1OxqFmCY8nb1jGXmPnY7PqxKa13rtPbgv1NoXo28tl9NtvOa3hZsU43TOFbpHG6vw59SwSTXUe2DN4QX+3JXMLIuyhybu4I+ul06yUseKvfpuy4nElbfsylU/Zb5sxEGNGyXgCoJ6ar794QX+5TbDBFphYPbFBC7em5N6qSg32adSuW1rXR/KLl9V5EmLJeE9HHN+yq82Kfch2a04cm5If2c5qiS0ZdnE69tPbXaYWBEX7TlojYh/TXzZ6sd7Su82Lech0U0Y3bm5/a3fGnlVRgDyzkm0ZbgWhU02Ve7TJvwguGNGV65pf7SlTxaNZUm1DFbAw5CeMHwxmqaW2SW+tcTWJsv11TCa1XQF1tlv5d5XkzN09fgjzHJcyy5D5GIr4DfTgDfzhXczmOyan6+28xrfVFjyAsvpmD7GvzXwfc1d+BKlL6uRTpP54EKFJHkBtBJjdeQ8KJlF2mkVSul9dz+rtqbxubpPFlkeFy5NfAqR/sKL1o0T308pUvktKLm8DpJ56p0zUEmRnjRmnlB2z77tW2O0o/Fzow2pDXXgiuEueCihPCiJecNDMqYiivBRQnhRUtaf017KxYFrySB/xFetOJMp/931bYWX+tvI2YPDNigFUMuILoeYGLvGCMdN31E7zJ+rrYVEoY8V18LR1NGmqReKtqCwj8kvGhFyRpsX1OT4+2Aw8ofKzquNa1PtyisIX8Z+OWZm2PzeYDfE0FuIabKSe7Ci1bkPhB/r/2NsT25D5HjVMOo4XUoJaX/t7W/mr5yuYWYKl+jo8+LFuTelOuA/S85i6t2Fe1nbnj9LriKlDSPVrk2pvBiyq4Dvpwxt/Z1EfClnn1WxS+T27pQ7fv3hBdTFvGtwrnhNQtec/EG6Hzzgmkk1S7qLLwglpvU3Jnjtaa3SSqZEF5tjVd4MWVVvmTvGUreivwm9WFEGzYd9Vwd2nXBhPCvNb8LTngxZWdB+4FKa0+bjvs/0+8Zcs7VmKKMCK3FWWryK1nJpOpauqHytKCkH+gm3eiR+lQ2c9F+G+D9V2/SZ52O4V36rNJ3jPEqldyS/Gnqt7EE2N/mT2rPy96fQ0yQXxfW8EcnvGjFfeZQ4M2N/lfXdZ/Sg3Wsh/bQLlNtZIjFbWepP2zIRY3ffydoSpqh3qVRkzfpHN0NUOiotfn00JPcr2ov0AkvWlH6Dq+hH95jW6Xw+iPQNncpdHILGl0KWov6jus+Qg1XnxetqLqJYyQ3qfkwGiMe6xaif1F40YqHtArD1FwE3O/rguH+jOttzSMM+4QXLbmc6EPxPFiArQy8qFKotSOFFy15mPC7os7TIIkoriZaU67ROuKix8KL1mxuwF8nelY3tZlXaXJpBBcFCw0zjPs0vD5cP6TwokVXqSQ5Rbdp+Pf7AE2oq/TgVAPbv3Uq5J1E6eN6SnjRqk1J8ueaV8Ue0bZPaZEeUDXXbrZD/n8JVGOM7D4V7BbRR+gKL1p2l0r2r1LpfmqDOVbpAXWSgvzXNBm7xuNwkx6ob9M2Mox1Op6bc/9TuhYivgro/9Q4SfkhWMfzj+y6bFHOvuesBnHI43udcVxKX8tw2/sdJ+lT40KvY67ssV36aVvanveOwxjHIvecXff6X5ZpGyO/hyxXyT368OTTpBePj4dehQSgaTkP2RcuiR/TbAhAOMILgHCEFwDhCC8AwhFeAIQjvAAIR3gBEI7wAiAc4QVAOMILgHCEFwDhCC8AwhFeAIQjvAAIR3gBEI7wAiAc4QVAOMILgHCEFwDhvHTKAEb1yuEd3ovHx8fW9gmAxmk2BCAc4QVAOMILgHCEFwDhCC8AwhFeAIQjvAAIR3gBEI7wAiAc4QVAOMILgHCEFwDhCC8AwhFeAIQjvAAIR3gBEI7wAiAc4QVAOMILgHCEFwDhCC8AwhFeAIQjvAAIR3gBEI7wAiAc4QVAOMILgHCEFwDhCC8AwhFeAIQjvAAIR3gBEI7wAiAc4QVAOMILgHCEFwCxdF33X/YGcxki40RLAAAAAElFTkSuQmCC" alt="INACAP">
+</div>
+
+<div class="escena">
+
+  <!-- columna izquierda -->
+  <div class="col-izquierda">
+    <h1 class="titulo-principal">Comparativa de metodologías de innovación</h1>
+    <p class="intro-texto">Design Thinking, Lean Startup e Innovación Abierta responden a distintos tipos de incertidumbre dentro de un proyecto de innovación. Explora cada bloque para descubrir cuándo conviene aplicar cada una.</p>
+    <div class="badge-progreso" id="badge-progreso">
+      <div class="puntos">
+        <div class="punto" data-punto="1"></div>
+        <div class="punto" data-punto="2"></div>
+        <div class="punto" data-punto="3"></div>
+        <div class="punto" data-punto="4"></div>
+        <div class="punto" data-punto="5"></div>
+      </div>
+      <div class="texto" id="texto-progreso">0/5 explorados</div>
+    </div>
+  </div>
+
+  <!-- columna derecha -->
+  <div class="col-derecha">
+    <div class="grid-tarjetas">
+
+      <button class="tarjeta-nodo" data-nodo="1" onclick="abrirNodo(1)">
+        <div class="check-visitado">✓</div>
+        <div class="icono-nodo">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </div>
+        <div class="titulo-nodo">Design Thinking</div>
+        <div class="cta-nodo">Explorar <span class="flecha">→</span></div>
+      </button>
+
+      <button class="tarjeta-nodo" data-nodo="2" onclick="abrirNodo(2)">
+        <div class="check-visitado">✓</div>
+        <div class="icono-nodo">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c3 3 4.5 6.5 4.5 10 0 2-1 4-4.5 6-3.5-2-4.5-4-4.5-6C7.5 8.5 9 5 12 2Z"/><circle cx="12" cy="10" r="1.6"/><path d="M9 17l-2 4M15 17l2 4"/></svg>
+        </div>
+        <div class="titulo-nodo">Lean Startup</div>
+        <div class="cta-nodo">Explorar <span class="flecha">→</span></div>
+      </button>
+
+      <button class="tarjeta-nodo" data-nodo="3" onclick="abrirNodo(3)">
+        <div class="check-visitado">✓</div>
+        <div class="icono-nodo">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.2"/><circle cx="5" cy="17" r="2.2"/><circle cx="19" cy="17" r="2.2"/><path d="M12 7.2V13M12 13L6.5 15.5M12 13l5.5 2.5"/></svg>
+        </div>
+        <div class="titulo-nodo">Innovación Abierta</div>
+        <div class="cta-nodo">Explorar <span class="flecha">→</span></div>
+      </button>
+
+      <button class="tarjeta-nodo" data-nodo="5" onclick="abrirNodo(5)">
+        <div class="check-visitado">✓</div>
+        <div class="icono-nodo">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v6"/><path d="M12 9L6 14M12 9l6 5"/><circle cx="6" cy="16" r="1.6"/><circle cx="18" cy="16" r="1.6"/><circle cx="12" cy="21" r="1.6"/></svg>
+        </div>
+        <div class="titulo-nodo">¿Cómo elegir?</div>
+        <div class="cta-nodo">Explorar <span class="flecha">→</span></div>
+      </button>
+
+      <button class="tarjeta-nodo ancha" data-nodo="4" onclick="abrirNodo(4)">
+        <div class="check-visitado">✓</div>
+        <div class="cabecera-ancha">
+          <div class="icono-nodo">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4v16M12 4v16M19 4v16"/></svg>
+          </div>
+          <div>
+            <div class="titulo-nodo" style="margin-bottom:2px;">Comparación lado a lado</div>
+            <div class="cta-nodo">Ver las 3 metodologías juntas <span class="flecha">→</span></div>
+          </div>
+        </div>
+      </button>
+
+    </div>
+
+    <div class="conector"></div>
+
+    <div class="barra-cierre" id="barra-cierre" onclick="intentarAbrirCierre()">
+      <div class="icono-cierre" id="icono-cierre">🔒</div>
+      <div class="texto-cierre">
+        <div class="titulo-cierre">Cierre</div>
+        <div class="ayuda-cierre" id="ayuda-cierre">Explora los 5 bloques para desbloquear</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL CIERRE -->
+<div class="overlay" id="overlay-cierre" onclick="cerrarSiFondo(event,'overlay-cierre')">
+  <div class="modal">
+    <div class="cerrar-modal" onclick="cerrarModal('overlay-cierre')">✕</div>
+    <h3>¡Listo!</h3>
+    <p>Ya conoces las tres metodologías y cuándo aplicar cada una. En la siguiente lección vas a ponerlas en práctica frente a un caso empresarial real.</p>
+  </div>
+</div>
+
+<!-- MODAL NODOS -->
+<div class="overlay" id="overlay-nodo" onclick="cerrarSiFondo(event,'overlay-nodo')">
+  <div class="modal">
+    <div class="cerrar-modal" onclick="cerrarModal('overlay-nodo')">✕</div>
+    <div id="modal-cuerpo"></div>
+  </div>
+</div>
+
+<script>
+  const datosNodos = {
+    1:{
+      titulo:"Design Thinking",
+      icono:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="stroke:#adb2d2;width:21px;height:21px;"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>`,
+      texto:"Metodología centrada en las personas. Responde a la pregunta: ¿entendemos bien el problema? Su herramienta clave son las 5 fases —Empatizar, Definir, Idear, Prototipar y Testear—. Aplícala cuando el problema no está claro o las soluciones existentes no conectan con la necesidad real de las personas."
+    },
+    2:{
+      titulo:"Lean Startup",
+      icono:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="stroke:#adb2d2;width:21px;height:21px;"><path d="M12 2c3 3 4.5 6.5 4.5 10 0 2-1 4-4.5 6-3.5-2-4.5-4-4.5-6C7.5 8.5 9 5 12 2Z"/><circle cx="12" cy="10" r="1.6"/><path d="M9 17l-2 4M15 17l2 4"/></svg>`,
+      texto:"Valida ideas con el menor riesgo posible. Responde a: ¿el mercado realmente quiere esto? Su herramienta clave es el ciclo Construir–Medir–Aprender y el MVP. Aplícala cuando ya existe una hipótesis de solución, pero no se sabe si el mercado la adoptará."
+    },
+    3:{
+      titulo:"Innovación Abierta y Colaborativa",
+      icono:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="stroke:#adb2d2;width:21px;height:21px;"><circle cx="12" cy="5" r="2.2"/><circle cx="5" cy="17" r="2.2"/><circle cx="19" cy="17" r="2.2"/><path d="M12 7.2V13M12 13L6.5 15.5M12 13l5.5 2.5"/></svg>`,
+      texto:"Amplía de dónde vienen las ideas. Responde a: ¿tenemos las capacidades para resolver esto solos? Su herramienta clave es la colaboración externa (outside-in) y compartir conocimiento propio (inside-out). Aplícala cuando la organización no tiene las capacidades internas necesarias, o existe conocimiento externo que podría acelerar el proceso."
+    },
+    5:{
+      titulo:"¿Cómo elegir en la práctica?",
+      icono:`<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="stroke:#adb2d2;width:21px;height:21px;"><path d="M12 3v6"/><path d="M12 9L6 14M12 9l6 5"/><circle cx="6" cy="16" r="1.6"/><circle cx="18" cy="16" r="1.6"/><circle cx="12" cy="21" r="1.6"/></svg>`,
+      texto:"En un proyecto real, muchas iniciativas combinan las tres metodologías en distintas etapas: se empatiza con Design Thinking, se valida con Lean Startup, y se recurre a Innovación Abierta cuando el equipo interno no puede resolver algo solo. Ninguna es excluyente de las otras."
+    }
+  };
+
+  function cuerpoNodoSimple(n){
+    const d = datosNodos[n];
+    return `<div class="icono-nodo">${d.icono}</div>
+            <h3>${d.titulo}</h3>
+            <p>${d.texto}</p>`;
+  }
+
+  function cuerpoComparacion(){
+    return `
+      <h3 style="margin-bottom:16px;">Comparación lado a lado</h3>
+      <div class="comparativa">
+        <div class="col">
+          ${datosNodos[1].icono.replace('21px','26px').replace('21px','26px')}
+          <h4>Design Thinking</h4>
+          <div class="fila"><div class="rotulo">Pregunta clave</div><div class="valor">¿Entendemos bien el problema?</div></div>
+          <div class="fila"><div class="rotulo">Uso recomendado</div><div class="valor">El problema no está claro o no conecta con la necesidad real.</div></div>
+        </div>
+        <div class="col">
+          ${datosNodos[2].icono.replace('21px','26px').replace('21px','26px')}
+          <h4>Lean Startup</h4>
+          <div class="fila"><div class="rotulo">Pregunta clave</div><div class="valor">¿El mercado realmente quiere esto?</div></div>
+          <div class="fila"><div class="rotulo">Uso recomendado</div><div class="valor">Existe una hipótesis, pero falta validar si el mercado la adopta.</div></div>
+        </div>
+        <div class="col">
+          ${datosNodos[3].icono.replace('21px','26px').replace('21px','26px')}
+          <h4>Innovación Abierta</h4>
+          <div class="fila"><div class="rotulo">Pregunta clave</div><div class="valor">¿Tenemos las capacidades para resolver esto solos?</div></div>
+          <div class="fila"><div class="rotulo">Uso recomendado</div><div class="valor">Faltan capacidades internas o hay conocimiento externo útil.</div></div>
+        </div>
+      </div>`;
+  }
+
+  const estado = { visitados:new Set() };
+
+  function abrirNodo(n){
+    const cuerpo = document.getElementById('modal-cuerpo');
+    cuerpo.innerHTML = (n === 4) ? cuerpoComparacion() : cuerpoNodoSimple(n);
+    document.getElementById('overlay-nodo').classList.add('abierto');
+
+    if(!estado.visitados.has(n)){
+      estado.visitados.add(n);
+      document.querySelector(`.tarjeta-nodo[data-nodo="${n}"]`).classList.add('visitada');
+      document.querySelector(`.punto[data-punto="${n}"]`).classList.add('hecho');
+      actualizarProgreso();
+    }
+  }
+
+  function actualizarProgreso(){
+    const total = estado.visitados.size;
+    document.getElementById('texto-progreso').textContent = total+'/5 explorados';
+    if(total === 5){
+      document.getElementById('badge-progreso').classList.add('completo');
+      const barra = document.getElementById('barra-cierre');
+      barra.classList.add('desbloqueada');
+      document.getElementById('icono-cierre').textContent = '🎓';
+      document.getElementById('ayuda-cierre').textContent = 'Toca para ver el resumen final';
+    }
+  }
+
+  function intentarAbrirCierre(){
+    if(estado.visitados.size < 5) return;
+    document.getElementById('overlay-cierre').classList.add('abierto');
+    const barra = document.getElementById('barra-cierre');
+    if(!barra.classList.contains('vista')){
+      barra.classList.remove('desbloqueada');
+      barra.classList.add('vista');
+      document.getElementById('icono-cierre').textContent = '✓';
+      document.getElementById('ayuda-cierre').textContent = 'Cierre visto';
+    }
+  }
+
+  function cerrarModal(idOverlay){
+    document.getElementById(idOverlay).classList.remove('abierto');
+  }
+  function cerrarSiFondo(e, idOverlay){
+    if(e.target.id === idOverlay) cerrarModal(idOverlay);
+  }
+  document.addEventListener('keydown', e=>{
+    if(e.key === 'Escape'){
+      cerrarModal('overlay-nodo');
+      cerrarModal('overlay-cierre');
+    }
+  });
+</script>
+</body>
+</html>
